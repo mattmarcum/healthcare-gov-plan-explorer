@@ -32,6 +32,26 @@ export async function searchPlansPage(
   return res.json();
 }
 
+/**
+ * Fetch one plan's full detail. The bulk search returns a trimmed object; the
+ * per-plan endpoint adds fields like `sbcs` (the coverage-example costs). The
+ * request body is just the household/place/subsidy params (no paging/filter).
+ */
+export async function fetchPlanDetail(
+  apiBase: string,
+  params: SearchParams,
+  planId: string,
+): Promise<RawPlan> {
+  const res = await fetch(`${apiBase}/plans/${planId}?year=${params.year}`, {
+    method: "POST",
+    headers: { "content-type": "text/plain;charset=UTF-8" },
+    body: JSON.stringify(params),
+  });
+  if (!res.ok) throw new Error(`plans/${planId} -> HTTP ${res.status}`);
+  const data = await res.json();
+  return data.plan as RawPlan;
+}
+
 /** Fetch every plan for the household, paging until `total` is reached. */
 export async function fetchAllPlans(
   apiBase: string,

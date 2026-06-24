@@ -53,10 +53,17 @@ background service worker and no popup. Data flows in three stages:
    `POST <apiBase>/plans/search?year=<year>` using the response's `total`. The
    SPA hardcodes `limit: 10`; we use 50 and loop `offset` until done.
 
+   For the SBC coverage-example costs (childbirth/diabetes/fracture), the bulk
+   search response is **not** enough — those live only on the per-plan detail
+   endpoint (`POST <apiBase>/plans/<id>`). `fetchPlanDetail` pulls one plan; the
+   panel's "Load cost examples" button runs it across all plans with a small
+   concurrency pool (`makeEnrich`/`pool` in `index.ts`) on demand.
+
 3. **Render** (`src/content/panel.ts`). `flatten.ts` reduces each deeply nested
    plan to a flat `PlanRow`; the panel draws a table inside a **shadow root**
    (so the host page's CSS can't bleed in) with click-to-sort headers, a text
-   filter, and CSV export (`src/lib/csv.ts`).
+   filter, a **Columns** dropdown (visible set persisted in `localStorage` under
+   `hgpe.visibleColumns`), and CSV export of the visible columns (`src/lib/csv.ts`).
 
 `src/content/index.ts` ties it together: injects the floating launch button,
 runs the pipeline on click, and re-adds the button via a `MutationObserver`
@@ -80,10 +87,17 @@ because the site is an SPA that swaps views and can remove it.
   (`"CSR94"`); a plan's per-benefit `cost_sharings` describe it as
   `"94% AV Level Silver Plan CSR"`. If you ever call `enrollment/validate`, it
   expects the long form. Don't confuse them.
-- **Plans have many deductible/MOOP entries** (per network tier and per CSR
-  variant). `flatten.ts` surfaces the `In-Network` amount — that's what the
-  household actually pays at their CSR. `premium_w_credit` is the net premium
-  after APTC; `oopc` is the plan's estimated out-of-pocket cost figure.
+- **Plans have many deductible/MOOP/benefit entries** (per network tier and per
+  CSR variant). `flatten.ts` (`inNetworkForCsr`) selects the `In-Network` entry
+  matching the household's CSR — for a Silver CSR94 household that's the
+  `"94% AV Level Silver Plan CSR"` variant (e.g. $0 deductible / $2,200 MOOP),
+  **not** the base `"Exchange variant (no CSR)"` ($6,000 / $8,900). Non-CSR
+  plans (e.g. Gold) have no CSR variant, so they fall back to the base amount.
+  The same CSR-matching logic drives the per-benefit copay columns (PCP,
+  specialist, ER, generic drugs). When a plan splits Medical vs. Drug
+  deductibles instead of a "Combined" entry, `deductibleFor` sums them.
+  `premium_w_credit` is the net premium after APTC; `oopc` is the plan's
+  estimated monthly out-of-pocket cost figure.
 - The search response also includes `facet_groups` (counts by metal level,
   issuer, plan type, etc.) and `ranges` — useful if/when we add faceted
   filtering driven by the API instead of client-side only.

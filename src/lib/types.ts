@@ -49,6 +49,32 @@ export interface PlanSearchResponse {
   ranges?: unknown;
 }
 
+export interface CostSharing {
+  network_tier: string; // "In-Network" | "Out-of-Network" | "In-Network Tier 2"
+  csr: string; // e.g. "94% AV Level Silver Plan CSR" | "Exchange variant (no CSR)"
+  display_string: string; // e.g. "$30", "25% Coinsurance after deductible", "No Charge"
+}
+
+export interface Benefit {
+  type: string; // e.g. "PRIMARY_CARE_VISIT_TO_TREAT_AN_INJURY_OR_ILLNESS"
+  cost_sharings?: CostSharing[];
+}
+
+export interface AmountEntry {
+  amount: number;
+  network_tier: string;
+  csr: string;
+  type: string; // e.g. "Combined Medical and Drug EHB Deductible"
+}
+
+/** A standardized "Summary of Benefits & Coverage" cost scenario. */
+export interface SbcScenario {
+  coinsurance: number;
+  copay: number;
+  deductible: number;
+  limit: number;
+}
+
 /** Loosely typed — we only read the fields we surface; the payload has far more. */
 export interface RawPlan {
   id: string;
@@ -59,9 +85,16 @@ export interface RawPlan {
   premium_w_credit: number;
   oopc?: number;
   hsa_eligible?: boolean;
+  specialist_referral_required?: boolean;
   benefits_url?: string;
+  brochure_url?: string;
+  formulary_url?: string;
+  network_url?: string;
   issuer?: { name?: string };
-  deductibles?: Array<{ amount: number; network_tier: string; type: string }>;
-  moops?: Array<{ amount: number; network_tier: string; type: string }>;
+  benefits?: Benefit[];
+  deductibles?: AmountEntry[];
+  moops?: AmountEntry[];
+  // sbcs are only present on the per-plan detail endpoint, not the bulk search.
+  sbcs?: { baby?: SbcScenario; diabetes?: SbcScenario; fracture?: SbcScenario };
   quality_rating?: { global_rating?: number };
 }
