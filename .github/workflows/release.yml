@@ -1,0 +1,71 @@
+name: Release
+
+# Tag a version to cut a release:  git tag v0.1.0 && git push --tags
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm run package
+      - name: Attach zip to GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: plan-explorer.zip
+          generate_release_notes: true
+
+  publish-chrome:
+    needs: build
+    runs-on: ubuntu-latest
+    # Set repository variable STORE_PUBLISH=true once the secrets below exist.
+    if: ${{ vars.STORE_PUBLISH == 'true' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - run: npm run package
+      - name: Upload to Chrome Web Store
+        uses: mnao305/chrome-extension-upload@v5
+        with:
+          file-path: plan-explorer.zip
+          extension-id: ${{ secrets.CHROME_EXTENSION_ID }}
+          client-id: ${{ secrets.CHROME_CLIENT_ID }}
+          client-secret: ${{ secrets.CHROME_CLIENT_SECRET }}
+          refresh-token: ${{ secrets.CHROME_REFRESH_TOKEN }}
+          publish: true
+
+  publish-firefox:
+    needs: build
+    runs-on: ubuntu-latest
+    if: ${{ vars.STORE_PUBLISH == 'true' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      # Submits a "listed" add-on to AMO; it then enters Mozilla's review queue.
+      - name: Sign & submit to Firefox Add-ons
+        run: >
+          npx web-ext sign
+          --source-dir dist
+          --channel listed
+          --api-key "${{ secrets.AMO_JWT_ISSUER }}"
+          --api-secret "${{ secrets.AMO_JWT_SECRET }}"

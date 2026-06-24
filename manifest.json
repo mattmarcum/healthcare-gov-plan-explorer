@@ -1,0 +1,23 @@
+{
+  "manifest_version": 3,
+  "name": "HealthCare.gov Plan Explorer",
+  "version": "0.1.0",
+  "description": "See and compare every available HealthCare.gov marketplace plan in one sortable, filterable, exportable table.",
+  "content_scripts": [
+    {
+      "matches": ["https://www.healthcare.gov/marketplace/auth/enroll/consumers/*"],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    }
+  ],
+  "host_permissions": [
+    "https://www.healthcare.gov/*",
+    "https://marketplace-int.api.healthcare.gov/*"
+  ],
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "plan-explorer@healthcare-gov",
+      "strict_min_version": "121.0"
+    }
+  }
+}
