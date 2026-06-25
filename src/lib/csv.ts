@@ -23,7 +23,7 @@ export function toCsv(rows: PlanRow[], columns: (keyof PlanRow)[] = DEFAULT_COLU
 export function downloadCsv(
   rows: PlanRow[],
   columns?: (keyof PlanRow)[],
-  filename = "healthcare-plans.csv",
+  filename = "marketplace-plans.csv",
 ): void {
   const blob = new Blob([toCsv(rows, columns)], { type: "text/csv" });
   const url = URL.createObjectURL(blob);

@@ -38,7 +38,7 @@ const ALL_COLUMNS: Col[] = [
 ];
 
 const SBC_KEYS: (keyof PlanRow)[] = ["sbc_baby", "sbc_diabetes", "sbc_fracture"];
-const STORAGE_KEY = "hgpe.visibleColumns";
+const STORAGE_KEY = "plan-explorer.visibleColumns";
 
 function loadVisible(): Set<string> {
   try {
@@ -82,6 +82,7 @@ th.sorted.desc::after { content: " \\25BC"; }
 td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
 tr:hover td { background: #f5f8ff; }
 a { color: #2563eb; }
+.disclaimer { padding: 7px 16px; border-top: 1px solid #e5e7eb; background: #f9fafb; color: #6b7280; font-size: 11px; line-height: 1.4; }
 `;
 
 type Enrich = (
@@ -89,10 +90,10 @@ type Enrich = (
 ) => Promise<Record<string, CostExamples>>;
 
 export function renderPanel(rows: PlanRow[], enrich?: Enrich): void {
-  document.getElementById("hgpe-panel")?.remove();
+  document.getElementById("plan-explorer-panel")?.remove();
 
   const host = document.createElement("div");
-  host.id = "hgpe-panel";
+  host.id = "plan-explorer-panel";
   const root = host.attachShadow({ mode: "open" });
   document.documentElement.appendChild(host);
 
@@ -110,7 +111,7 @@ export function renderPanel(rows: PlanRow[], enrich?: Enrich): void {
   wrap.className = "wrap";
   wrap.innerHTML = `<div class="modal">
       <div class="bar">
-        <h1>HealthCare.gov Plan Explorer</h1>
+        <h1>Plan Explorer for HealthCare.gov</h1>
         <span class="count"></span>
         <input class="filter" type="search" placeholder="Filter by plan, issuer, metal, type…" />
         ${enrich ? '<button class="loadCosts">Load cost examples</button>' : ""}
@@ -122,6 +123,7 @@ export function renderPanel(rows: PlanRow[], enrich?: Enrich): void {
         <button class="close">Close</button>
       </div>
       <div class="scroll"><table><thead></thead><tbody></tbody></table></div>
+      <div class="disclaimer">Independent tool — not affiliated with, endorsed by, or operated by HealthCare.gov, CMS, or the U.S. government. Always confirm details on HealthCare.gov before enrolling.</div>
     </div>`;
   root.appendChild(wrap);
   const countEl = root.querySelector(".count") as HTMLElement;

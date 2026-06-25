@@ -63,7 +63,7 @@ background service worker and no popup. Data flows in three stages:
    plan to a flat `PlanRow`; the panel draws a table inside a **shadow root**
    (so the host page's CSS can't bleed in) with click-to-sort headers, a text
    filter, a **Columns** dropdown (visible set persisted in `localStorage` under
-   `hgpe.visibleColumns`), and CSV export of the visible columns (`src/lib/csv.ts`).
+   `plan-explorer.visibleColumns`), and CSV export of the visible columns (`src/lib/csv.ts`).
 
 `src/content/index.ts` ties it together: injects the floating launch button,
 runs the pipeline on click, and re-adds the button via a `MutationObserver`

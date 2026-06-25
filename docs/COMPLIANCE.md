@@ -113,8 +113,10 @@ imply official endorsement. Mitigations:
       requested API key (`developer.cms.gov/marketplace-api/key-request.html`).
 - [ ] Keep usage **scoped per-user**; never bulk-extract or redistribute data.
 - [ ] Manually review healthcare.gov terms + `robots.txt` before launch.
-- [ ] Finalize a clearly-third-party **name** and keep the disclaimer on both
-      store listings.
+- [x] Finalize a clearly-third-party **name** — shipped as **"Plan Explorer for
+      HealthCare.gov"** (the `X for Y` nominative-fair-use form). Disclaimer now
+      appears in the README, PRIVACY, the store-listing copy, and **in-product**
+      (panel footer). Still keep it on both store listings at submission time.
 - [ ] Publish the **privacy policy** ([`../PRIVACY.md`](../PRIVACY.md)) and
       declare "no data collection" on both stores.
 - [ ] No government logos/seals in icons or screenshots.

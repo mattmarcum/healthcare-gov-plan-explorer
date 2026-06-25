@@ -1,8 +1,8 @@
-# HealthCare.gov Plan Explorer
+# Plan Explorer for HealthCare.gov
 
-A browser extension (Chrome & Firefox) that pulls **every** available marketplace
-plan for your application and shows them in one sortable, filterable, exportable
-table — instead of the 10-at-a-time paging on healthcare.gov.
+An independent browser extension (Chrome & Firefox) that pulls **every** available
+Marketplace plan for your application and shows them in one sortable, filterable,
+exportable table — instead of the 10-at-a-time paging on healthcare.gov.
 
 > **Not affiliated with, endorsed by, or operated by HealthCare.gov, CMS, or the
 > U.S. government.** This is an independent tool that runs entirely in your own

@@ -4,7 +4,7 @@ import { getAppContext } from "../lib/session";
 import type { AppContext, RawPlan } from "../lib/types";
 import { renderPanel } from "./panel";
 
-const BTN_ID = "hgpe-launch";
+const BTN_ID = "plan-explorer-launch";
 const LABEL = "Compare all plans";
 
 function addButton(): void {

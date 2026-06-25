@@ -1,9 +1,9 @@
 # Privacy Policy
 
-_Last updated: 2026-06-23_
+_Last updated: 2026-06-25_
 
-**HealthCare.gov Plan Explorer** ("the extension") is a browser extension that
-helps you view and compare marketplace health plans on HealthCare.gov.
+**Plan Explorer for HealthCare.gov** ("the extension") is an independent browser
+extension that helps you view and compare Marketplace health plans on HealthCare.gov.
 
 ## The short version
 

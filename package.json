@@ -1,9 +1,9 @@
 {
-  "name": "healthcare-gov-plan-explorer",
+  "name": "plan-explorer-for-healthcaregov",
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "description": "Chrome extension to view and compare all HealthCare.gov marketplace plans at once.",
+  "description": "Independent browser extension to view and compare all Marketplace plans from HealthCare.gov at once.",
   "scripts": {
     "build": "node build.mjs",
     "watch": "node build.mjs --watch",
