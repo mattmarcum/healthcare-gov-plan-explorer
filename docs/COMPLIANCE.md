@@ -9,8 +9,12 @@ advice.** Overall risk: **Low-to-Medium**, with concrete mitigations below.
 - **CMS publishes an official, documented Marketplace API for third-party
   developers.** This is the single most important finding: the data this
   extension uses is officially available, and CMS invites outside developers to
-  build on it. Strongest mitigation: call the **documented** API with a
-  requested API key instead of the SPA's internal `marketplace-int.api…` host.
+  build on it. We considered migrating to the **documented** API but **decided
+  against it** — its `?apikey=` secret can't be held safely in a client-side
+  extension, the key expires every 60 days, and it would only replace one of
+  three pipeline stages (see §1). We instead keep the access **scoped per-user
+  and session-bound**, which is the "live front-end access" pattern the API is
+  intended for.
 - The biggest *store* friction point is **branding** — leading with the
   "HealthCare.gov" name risks implying government endorsement. We already ship a
   prominent "not affiliated" disclaimer; consider a name like *"Plan Explorer
@@ -44,6 +48,39 @@ household's own application** (tens to low-hundreds of plans) — i.e. exactly t
 "live front-end access" the API is for, not bulk dataset extraction. Keep it
 that way: scoped per-user, no caching/redistribution of the dataset, reasonable
 request volume. Risk if scoped: **Low**.
+
+### Why we did *not* migrate to the documented API
+
+The documented API requires an **API key**, passed as an `?apikey=` query
+parameter (a single shared secret, not a per-user token). Keys are "issued to
+anyone who requests access," tied to an identified requester and stated use, and
+**expire every 60 days** (auto-renewed by email). That requirement is a poor fit
+for a zero-backend, client-side extension:
+
+- **A browser extension can't keep a secret.** Anything bundled into
+  `content.js` is trivially extractable by any user. A single embedded key would
+  be, in effect, public — so any abuse would get the shared key rate-limited or
+  revoked and **break the extension for everyone** — and it would also **expire
+  every 60 days**, forcing a re-ship or inbox-tied renewal. Redistributing a key
+  issued to one requester via a public extension is also arguably off-label.
+- **A key-holding proxy backend** would solve secrecy but **destroys the
+  extension's core privacy guarantee** (no backend, no data collection) and would
+  make us an intermediary for households' subsidy/CSR data — the opposite of what
+  store review rewards.
+- **Migration only covers one of three pipeline stages anyway.** The documented
+  API would replace the *plan-search* call, but the bootstrap stage
+  (`appinfo` → `ffm/get` → `enrollment/<id>`, which supplies the household's
+  `aptc_override`/`csr_override`/`place`) still requires the user's logged-in
+  `www.healthcare.gov` session and is **not** part of the public Marketplace API.
+
+**Decision:** keep the current approach — call the marketplace plan API the same
+way the site's own SPA does, **scoped to the user's own application and their own
+logged-in session, no key, no caching/redistribution**. This is still the "live
+front-end access by one user" pattern the API is intended for; it simply uses the
+SPA's host instead of the keyed developer host. If a strictly-documented path is
+ever wanted, the only client-side-honest option is an **opt-in "use my own CMS
+API key"** setting (each user is then their own identified requester, with their
+own rate limit and renewal) — viable as a power-user toggle, not a default.
 
 ## 2. Computer Fraud and Abuse Act (CFAA) — Low
 
@@ -109,8 +146,11 @@ imply official endorsement. Mitigations:
 
 ## Mitigation checklist
 
-- [ ] Move plan-search to the **documented** CMS Marketplace API with a
-      requested API key (`developer.cms.gov/marketplace-api/key-request.html`).
+- [x] ~~Move plan-search to the documented CMS Marketplace API with a requested
+      API key.~~ **Decided against** — a client-side extension can't hold the
+      `?apikey=` secret, the key expires every 60 days, and migration would only
+      cover one of three pipeline stages. See §1, "Why we did not migrate." An
+      opt-in user-supplied-key mode remains a possible future toggle.
 - [ ] Keep usage **scoped per-user**; never bulk-extract or redistribute data.
 - [ ] Manually review healthcare.gov terms + `robots.txt` before launch.
 - [x] Finalize a clearly-third-party **name** — shipped as **"Plan Explorer for
